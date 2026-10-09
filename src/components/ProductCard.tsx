@@ -1,46 +1,163 @@
-// src/components/ProductCard.tsx
+
+'use client';
+
 import Link from 'next/link';
-import { Product } from '@/types';
+import type { Product } from '@/types';
 
 interface ProductCardProps {
   product: Product;
+  categoryIcon?: string;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
-  const isUp = product.changeType === 'up';
-  const isDown = product.changeType === 'down';
+type ProductWithApiFields = Product & {
+  nameBn?: string;
+  nameEn?: string;
+  current_price?: string | number;
+  todayPrice?: string | number;
+  today_price?: string | number;
+  avg_price?: string | number;
+  image_emoji?: string;
+};
+
+function formatPrice(value: unknown): string {
+  if (value === null || value === undefined || value === '') {
+    return 'দাম পাওয়া যায়নি';
+  }
+
+  if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>;
+
+    return formatPrice(
+      obj.price ?? obj.amount ?? obj.value ?? obj.currentPrice
+    );
+  }
+
+  const text = String(value).trim();
+
+  if (!text) return 'দাম পাওয়া যায়নি';
+
+  const normalized = text
+    .replace(/[০-৯]/g, (digit) =>
+      String('০১২৩৪৫৬৭৮৯'.indexOf(digit))
+    )
+    .replace(/,/g, '')
+    .replace(/\s*টাকা/g, '')
+    .trim();
+
+  const number = Number(normalized);
+
+  if (normalized && Number.isFinite(number)) {
+    return `${number.toLocaleString('bn-BD')} টাকা`;
+  }
+
+  return text;
+}
+
+export default function ProductCard({
+  product,
+  categoryIcon,
+}: ProductCardProps) {
+  const data = product as ProductWithApiFields;
+
+  const name =
+    data.nameBn ||
+    data.name ||
+    data.nameEn ||
+    data.slug ||
+    'পণ্যের নাম নেই';
+
+  const unit = data.unit || 'একক উল্লেখ নেই';
+
+  const icon =
+    data.emoji ||
+    data.icon ||
+    data.image_emoji ||
+    categoryIcon ||
+    '🛒';
+
+  const price = formatPrice(
+    data.currentPrice ??
+      data.current_price ??
+      data.todayPrice ??
+      data.today_price ??
+      data.price ??
+      data.rate ??
+      data.value ??
+      data.avg_price ??
+      data.avg_price
+  );
+
+  const change = data.change;
+
+  let isUp = false;
+  let isDown = false;
+  let changeText = '— ০.০%';
+
+  if (typeof change === 'object' && change !== null) {
+    isUp = change.dir === 'up';
+    isDown = change.dir === 'down';
+
+    changeText = `${
+      isUp ? '▲' : isDown ? '▼' : '—'
+    } ${Number(change.pct).toLocaleString('bn-BD')}%`;
+  } else if (typeof change === 'string' && change.trim()) {
+    changeText = change;
+    isUp = change.includes('▲');
+    isDown = change.includes('▼');
+  } else if (data.changeType) {
+    isUp = data.changeType === 'up';
+    isDown = data.changeType === 'down';
+
+    if (isUp || isDown) {
+      changeText = `${isUp ? '▲' : '▼'} ০.০%`;
+    }
+  }
+
+  const href = `/product/${data.slug || data.id}`;
 
   return (
-    <Link 
-      href={`/product/${product.id}`}
-      className="bg-white p-4 rounded-xl shadow-sm border border-emerald-100 hover:shadow-md transition-all flex flex-col justify-between group"
+    <Link
+      href={href}
+      className="group flex h-full flex-col justify-between rounded-2xl
+        border border-emerald-100 bg-white p-4 shadow-sm
+        transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
     >
       <div>
-        {/* Top: Emoji & Badge */}
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-3xl p-2 bg-emerald-50 rounded-lg group-hover:scale-110 transition-transform">
-            {product.emoji || '🛒'}
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span
+            className="flex h-14 w-14 items-center justify-center
+              rounded-xl bg-emerald-50 text-3xl
+              transition-transform group-hover:scale-110"
+          >
+            {icon}
           </span>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium flex items-center space-x-1 ${
-            isUp ? 'bg-green-100 text-green-700' : isDown ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
-          }`}>
-            <span>{product.change}</span>
+
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+              isUp
+                ? 'bg-green-100 text-green-700'
+                : isDown
+                  ? 'bg-red-100 text-red-700'
+                  : 'bg-gray-100 text-gray-600'
+            }`}
+          >
+            {changeText}
           </span>
         </div>
 
-        {/* Product Name */}
-        <h3 className="font-semibold text-gray-800 text-base group-hover:text-emerald-700 transition-colors">
-          {product.name}
+        <h3 className="font-bold text-gray-800 transition-colors group-hover:text-emerald-700">
+          {name}
         </h3>
 
-        {/* Unit Line */}
-        <p className="text-xs text-gray-500 mt-0.5">{product.unit}</p>
+        <p className="mt-1 text-sm text-gray-500">{unit}</p>
       </div>
 
-      {/* Price Row */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-        <span className="text-xs text-gray-400">আজকের দাম</span>
-        <span className="font-bold text-emerald-800 text-lg">{product.currentPrice}</span>
+      <div className="mt-4 flex items-center justify-between gap-2 border-t border-gray-100 pt-3">
+        <span className="text-xs text-gray-500">আজকের দাম</span>
+
+        <span className="text-right font-bold text-emerald-800">
+          {price}
+        </span>
       </div>
     </Link>
   );
