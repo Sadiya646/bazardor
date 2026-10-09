@@ -1,7 +1,9 @@
 // src/app/product/[id]/page.tsx
 import { fetchProducts } from '@/lib/api';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
 import { Product, ChangeObject } from '@/types';
 
 interface ProductPageProps {
@@ -11,6 +13,15 @@ interface ProductPageProps {
 }
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
+  // ১. সার্ভার সাইডে সেশন চেক করা (লগইন করা না থাকলে সরাসরি /signin এ পাঠাবে)
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session) {
+    redirect('/signin');
+  }
+
   const { id } = await params;
 
   // সব প্রোডাক্ট থেকে নির্দিষ্ট আইডির প্রোডাক্টটি খুঁজে বের করা
@@ -31,7 +42,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
     const ch = changeVal as ChangeObject;
     isUp = ch.dir === 'up';
     isDown = ch.dir === 'down';
-    changeDisplay = `${isUp ? '▲ বাড়레' : isDown ? '▼ কমেছে' : '—'} ${ch.pct}%`;
+    changeDisplay = `${isUp ? '▲ বাড়ছে' : isDown ? '▼ কমেছে' : '—'} ${ch.pct}%`;
   } else if (typeof changeVal === 'string') {
     changeDisplay = changeVal;
     isUp = changeDisplay.includes('▲');
@@ -72,7 +83,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
 
             {/* Price Box */}
             <div className="bg-emerald-50/60 border border-emerald-100 rounded-xl p-4 text-left md:text-right">
-              <span className="text-xs text-emerald-700 font-medium block">আজকের গড় দাম</span>
+              <span className="text-xs text-emerald-700 font-medium block">আজকের গড় দাম</span>
               <div className="text-3xl font-extrabold text-emerald-900 mt-1 flex items-center md:justify-end gap-1">
                 <span>৳</span>
                 <span>{productPrice}</span>
@@ -81,7 +92,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
                 <div className={`text-xs mt-2 font-semibold inline-flex items-center px-2 py-0.5 rounded-full ${
                   isUp ? 'bg-green-100 text-green-700' : isDown ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-600'
                 }`}>
-                  {changeDisplay} (গতকালের তুলনায়)
+                  {changeDisplay} (গতকালের তুলনায়)
                 </div>
               )}
             </div>
@@ -90,7 +101,6 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
 
         {/* Bazar Prices List (বিভিন্ন বাজারের দামের তালিকা) */}
         <div className="bg-white rounded-2xl shadow-sm border border-emerald-100 p-6 md:p-8">
-          ্সেction தலைsh: বাজারের তালিকা ও দাম
           <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
             <span>🏪</span> বিভিন্ন বাজারের খুচরা ও পাইকারি দাম
           </h2>
@@ -108,7 +118,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
             </div>
           ) : (
             <div className="text-center py-8 text-gray-400">
-              <p>এই পণ্যের জন্য নির্দিষ্ট বাজারের কোনো আলাদা মূল্য তালিকা পাওয়া যায়নি।</p>
+              <p>এই পণ্যের জন্য নির্দিষ্ট বাজারের কোনো আলাদা মূল্য তালিকা পাওয়া যায়নি।</p>
             </div>
           )}
         </div>
