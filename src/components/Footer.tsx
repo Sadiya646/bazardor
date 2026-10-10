@@ -1,7 +1,7 @@
 // src/components/Footer.tsx
 export default function Footer() {
   return (
-    <footer className="bg-emerald-900 text-emerald-100 py-8 mt-16 border-t border-emerald-800">
+    <footer className="bg-emerald-900 text-emerald-100 py-4 mt-16 border-t border-emerald-800">
       <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between text-center md:text-left space-y-4 md:space-y-0">
         <div>
           <h2 className="text-lg font-bold text-white flex items-center justify-center md:justify-start space-x-2">

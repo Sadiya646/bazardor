@@ -48,7 +48,6 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
   }
 
   const productName = product.nameBn || product.name || product.slug || 'Unnamed Product';
-  // এপিআই থেকে আসা 'today' ফিল্ড এবং অন্যান্য বিকল্প ফিল্ডগুলো এখানে হ্যান্ডেল করা হয়েছে
   const productPrice = product.today ?? product.currentPrice ?? product.current_price ?? product.price ?? product.rate ?? product.value ?? '—';
   const productIcon = product.image || product.emoji || product.icon || product.categoryIcon || '🛒';
 
@@ -113,7 +112,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
                     <span className="text-xs text-gray-400 ml-2">({m.division})</span>
                   </div>
                   <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg">
-                    ৳ {m.min} - {m.max}
+                    ৳ {m.min} - ৳ {m.max}
                   </span>
                 </div>
               ))}

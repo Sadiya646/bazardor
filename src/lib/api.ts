@@ -1,7 +1,7 @@
 // src/lib/api.ts
 import { Product, Category } from '@/types';
 
-const BASE_URL = ' https://api.api-store.workers.dev/api/bazardor';
+const BASE_URL = 'https://openapi.programming-hero.com/api/bazardor';
 
 export async function fetchCategories(): Promise<Category[]> {
   try {
@@ -32,7 +32,7 @@ export async function fetchProducts(category?: string): Promise<Product[]> {
 // নির্দিষ্ট একটি প্রোডাক্টের আইডি দিয়ে তার সব ডিটেইলস (বাজারের দামসহ) আনার জন্য
 export async function fetchProductById(id: string) {
   try {
-    const res = await fetch(`https://api.api-store.workers.dev/api/bazardor/products/${id}`);
+    const res = await fetch(`https://openapi.programming-hero.com/api/bazardor/products/${id}`);
     if (!res.ok) return null;
     const data = await res.json();
     return data;
