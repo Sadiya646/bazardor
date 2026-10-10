@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import { fetchCategories } from "@/lib/api";
 import GlobalPriceTicker from "@/components/GlobalPriceTicker";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,6 +41,16 @@ export default async function RootLayout({
 <main>
           {children}
         </main>
+        <Toaster 
+          position="top-right" 
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: '#363636',
+              color: '#fff',
+            },
+          }} 
+        />
       </body>
     </html>
   );

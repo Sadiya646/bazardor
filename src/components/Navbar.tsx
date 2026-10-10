@@ -2,24 +2,46 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Category } from '@/types';
 import { getBengaliDate } from '@/lib/utils';
+import { authClient } from '@/lib/auth-client';
+import toast from 'react-hot-toast';
 
 interface NavbarProps {
   categories: Category[];
-  isLoggedIn?: boolean;
 }
 
-export default function Navbar({
-  categories,
-  isLoggedIn = false,
-}: NavbarProps) {
+export default function Navbar({ categories }: NavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const bengaliDate = getBengaliDate();
 
-  // হোম পেজ চেক করার জন্য (pathname === '/' অথবা '/products' হতে পারে)
+  // Better Auth client session hook
+  const { data: session, isPending } = authClient.useSession();
+
+  // Hompage check
   const isHomeActive = pathname === '/' || pathname === '/products';
+
+  // Logout Handler
+  const handleSignOut = async () => {
+    try {
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success('সফলভাবে সাইন আউট হয়েছে!');
+            router.push('/signin');
+            router.refresh();
+          },
+          onError: () => {
+            toast.error('সাইন আউট করতে সমস্যা হয়েছে।');
+          },
+        },
+      });
+    } catch {
+      toast.error('একটি অপ্রত্যাশিত সমস্যা হয়েছে।');
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-white shadow-sm">
@@ -38,36 +60,40 @@ export default function Navbar({
           </div>
         </Link>
 
-        {/* Auth Buttons */}
+        {/* Auth Buttons / User Profile */}
         <div className="flex items-center gap-2 sm:gap-3">
-          {isLoggedIn ? (
-            <>
+          {isPending ? (
+            <div className="text-xs text-gray-400">লোড হচ্ছে...</div>
+          ) : session?.user ? (
+            <div className="flex items-center gap-3">
               <Link
                 href="/profile"
-                className="rounded-md border border-emerald-700 px-3 py-2 text-sm text-emerald-800 transition-colors hover:bg-emerald-50"
+                className="flex items-center gap-1.5 rounded-lg border border-emerald-600 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
               >
-                প্রোফাইল
+                <span>👤</span>
+                <span className="max-w-[120px] truncate">{session.user.name || 'প্রোফাইল'}</span>
               </Link>
 
               <button
                 type="button"
-                className="rounded-md bg-red-600 px-3 py-2 text-sm text-white transition-colors hover:bg-red-700"
+                onClick={handleSignOut}
+                className="rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700 shadow-sm"
               >
                 সাইন আউট
               </button>
-            </>
+            </div>
           ) : (
             <>
               <Link
                 href="/signin"
-                className="rounded-md px-3 py-2 text-sm text-emerald-800 transition-colors hover:bg-emerald-50"
+                className="rounded-md px-3 py-2 text-sm text-emerald-800 transition-colors hover:bg-emerald-50 font-medium"
               >
                 সাইন ইন
               </Link>
 
               <Link
                 href="/signup"
-                className="rounded-md bg-emerald-700 px-3 py-2 text-sm text-white transition-colors hover:bg-emerald-800"
+                className="rounded-md bg-emerald-700 px-3 py-2 text-sm text-white transition-colors hover:bg-emerald-800 font-medium shadow-sm"
               >
                 সাইন আপ
               </Link>

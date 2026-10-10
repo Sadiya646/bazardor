@@ -1,43 +1,69 @@
-// src/app/signin/page.tsx
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from '@/lib/auth-client';
+import toast from 'react-hot-toast';
 
 export default function SignInPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
-      setError('দয়া করে সব ফিল্ড পূরণ করুন');
+      toast.error('দয়া করে সব ফিল্ড পূরণ করুন');
       return;
     }
-    setError('');
     setLoading(true);
 
     try {
-      const { data, error: authError } = await signIn.email({
+      const res = await signIn.email({
         email,
         password,
       });
 
-      if (authError) {
-        setError(authError.message || 'লগইন ব্যর্থ হয়েছে। ইমেইল বা পাসওয়ার্ড চেক করুন।');
+      if (res?.error) {
+        toast.error(res.error.message || 'লগইন ব্যর্থ হয়েছে। ইমেইল বা পাসওয়ার্ড চেক করুন।');
         setLoading(false);
         return;
       }
 
+      toast.success('সফলভাবে লগইন হয়েছে!');
       router.push('/');
-    } catch (err) {
-      setError('একটি অপ্রত্যাশিত সমস্যা হয়েছে।');
+      router.refresh();
+    } catch {
+      toast.error('একটি অপ্রত্যাশিত সমস্যা হয়েছে।');
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      toast.loading('গুগল লগইন প্রক্রিয়াকরণ হচ্ছে...');
+      await signIn.social({
+        provider: 'google',
+        callbackURL: '/',
+      });
+    } catch {
+      toast.dismiss();
+      toast.error('গুগল লগইন ব্যর্থ হয়েছে।');
+    }
+  };
+
+  const handleGithubSignIn = async () => {
+    try {
+      toast.loading('জিথাব লগইন প্রক্রিয়াকরণ হচ্ছে...');
+      await signIn.social({
+        provider: 'github',
+        callbackURL: '/',
+      });
+    } catch {
+      toast.dismiss();
+      toast.error('জিথাব লগইন ব্যর্থ হয়েছে।');
     }
   };
 
@@ -45,7 +71,6 @@ export default function SignInPage() {
     <div className="min-h-[85vh] flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50/30 to-white px-4 py-12">
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-900/10 border border-emerald-100 p-8 sm:p-10">
         
-        {/* Top Icon & Heading */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-emerald-600/30 text-2xl font-bold">
             🛒
@@ -54,14 +79,6 @@ export default function SignInPage() {
           <p className="text-sm text-gray-500 mt-1">আপনার অ্যাকাউন্টে সাইন ইন করুন</p>
         </div>
 
-        {/* Error Alert */}
-        {error && (
-          <div className="mb-6 p-4 text-sm text-red-700 bg-red-50 rounded-2xl border border-red-200 text-center font-medium shadow-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-bold uppercase tracking-wider text-gray-600 mb-2">
@@ -105,17 +122,32 @@ export default function SignInPage() {
           </button>
         </form>
 
-        {/* Divider */}
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-100"></div>
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-white/80 backdrop-blur px-3 text-gray-400 font-semibold tracking-wider">অথবা</span>
+            <span className="bg-white/80 backdrop-blur px-3 text-gray-400 font-semibold tracking-wider">অথবা সোশ্যাল লগইন</span>
           </div>
         </div>
 
-        {/* Footer Link */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <button
+            onClick={handleGoogleSignIn}
+            type="button"
+            className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            Google
+          </button>
+          <button
+            onClick={handleGithubSignIn}
+            type="button"
+            className="flex items-center justify-center px-4 py-3 border border-gray-200 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            GitHub
+          </button>
+        </div>
+
         <p className="text-center text-sm text-gray-600">
           কোনো অ্যাকাউন্ট নেই?{' '}
           <Link href="/signup" className="text-emerald-700 font-bold hover:underline">
