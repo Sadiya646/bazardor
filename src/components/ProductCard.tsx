@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -10,6 +9,8 @@ interface ProductCardProps {
 }
 
 type ProductWithApiFields = Product & {
+  _id?: string | number;
+  today?: string | number;
   nameBn?: string;
   nameEn?: string;
   current_price?: string | number;
@@ -21,7 +22,7 @@ type ProductWithApiFields = Product & {
 
 function formatPrice(value: unknown): string {
   if (value === null || value === undefined || value === '') {
-    return 'দাম পাওয়া যায়নি';
+    return 'দাম পাওয়া যায়নি';
   }
 
   if (typeof value === 'object') {
@@ -34,7 +35,7 @@ function formatPrice(value: unknown): string {
 
   const text = String(value).trim();
 
-  if (!text) return 'দাম পাওয়া যায়নি';
+  if (!text) return 'দাম পাওয়া যায়নি';
 
   const normalized = text
     .replace(/[০-৯]/g, (digit) =>
@@ -76,14 +77,14 @@ export default function ProductCard({
     '🛒';
 
   const price = formatPrice(
-    data.currentPrice ??
+    data.today ??
+      data.currentPrice ??
       data.current_price ??
       data.todayPrice ??
       data.today_price ??
       data.price ??
       data.rate ??
       data.value ??
-      data.avg_price ??
       data.avg_price
   );
 
@@ -113,7 +114,8 @@ export default function ProductCard({
     }
   }
 
-  const href = `/product/${data.slug || data.id}`;
+  const productId = data._id || data.id || data.slug;
+  const href = `/product/${productId}`;
 
   return (
     <Link

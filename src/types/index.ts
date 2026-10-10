@@ -1,6 +1,7 @@
 export interface Category {
   id: string | number;
   name: string;
+  today?: string | number;
   nameBn?: string;
   nameEn?: string;
   slug: string;
@@ -22,6 +23,7 @@ export type ChangeType = "up" | "down" | "flat";
 
 export interface Product {
   id: string | number;
+  _id?: string | number;
   name: string;
   nameBn?: string;
   nameEn?: string;

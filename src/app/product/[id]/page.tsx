@@ -1,10 +1,9 @@
-// src/app/product/[id]/page.tsx
-import { fetchProducts } from '@/lib/api';
+import { fetchProductById } from '@/lib/api';
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { Product, ChangeObject } from '@/types';
+import { ChangeObject, MarketPrice } from '@/types';
 
 interface ProductPageProps {
   params: Promise<{
@@ -13,7 +12,7 @@ interface ProductPageProps {
 }
 
 export default async function ProductDetailsPage({ params }: ProductPageProps) {
-  // ১. সার্ভার সাইডে সেশন চেক করা (লগইন করা না থাকলে সরাসরি /signin এ পাঠাবে)
+  // ১. সেশন চেক করা (লগইন করা না থাকলে সাইন-ইন পেজে পাঠাবে)
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -24,9 +23,8 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
 
   const { id } = await params;
 
-  // সব প্রোডাক্ট থেকে নির্দিষ্ট আইডির প্রোডাক্টটি খুঁজে বের করা
-  const products: Product[] = await fetchProducts();
-  const product = products.find((p) => String(p.id) === String(id));
+  // ২. সরাসরি সিঙ্গেল প্রোডাক্টের API কল করা
+  const product = await fetchProductById(id);
 
   if (!product) {
     notFound();
@@ -49,9 +47,10 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
     isDown = changeDisplay.includes('▼');
   }
 
-  const productName = product.name || product.slug || 'Unnamed Product';
-  const productPrice = product.currentPrice || product.price || product.rate || product.value || '—';
-  const productIcon = product.emoji || product.icon || '🛒';
+  const productName = product.nameBn || product.name || product.slug || 'Unnamed Product';
+  // এপিআই থেকে আসা 'today' ফিল্ড এবং অন্যান্য বিকল্প ফিল্ডগুলো এখানে হ্যান্ডেল করা হয়েছে
+  const productPrice = product.today ?? product.currentPrice ?? product.current_price ?? product.price ?? product.rate ?? product.value ?? '—';
+  const productIcon = product.image || product.emoji || product.icon || product.categoryIcon || '🛒';
 
   return (
     <main className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -72,7 +71,7 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
               </span>
               <div>
                 <span className="text-xs uppercase tracking-wider text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-md">
-                  {product.category}
+                  {product.categoryNameBn || product.category}
                 </span>
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mt-2">
                   {productName}
@@ -105,9 +104,23 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
             <span>🏪</span> বিভিন্ন বাজারের খুচরা ও পাইকারি দাম
           </h2>
 
-          {product.bazarPrices && product.bazarPrices.length > 0 ? (
+          {product.markets && product.markets.length > 0 ? (
             <div className="divide-y divide-gray-100">
-              {product.bazarPrices.map((bp, index) => (
+              {product.markets.map((m: MarketPrice, index: number) => (
+                <div key={index} className="py-3 flex items-center justify-between">
+                  <div>
+                    <span className="font-medium text-gray-700">{m.market}</span>
+                    <span className="text-xs text-gray-400 ml-2">({m.division})</span>
+                  </div>
+                  <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg">
+                    ৳ {m.min} - {m.max}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : product.bazarPrices && product.bazarPrices.length > 0 ? (
+            <div className="divide-y divide-gray-100">
+              {product.bazarPrices.map((bp, index: number) => (
                 <div key={index} className="py-3 flex items-center justify-between">
                   <span className="font-medium text-gray-700">{bp.bazarName}</span>
                   <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg">

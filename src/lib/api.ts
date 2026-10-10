@@ -28,3 +28,16 @@ export async function fetchProducts(category?: string): Promise<Product[]> {
     return [];
   }
 }
+
+// নির্দিষ্ট একটি প্রোডাক্টের আইডি দিয়ে তার সব ডিটেইলস (বাজারের দামসহ) আনার জন্য
+export async function fetchProductById(id: string) {
+  try {
+    const res = await fetch(`https://api.api-store.workers.dev/api/bazardor/products/${id}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data;
+  } catch (error) {
+    console.error('Failed to fetch product:', error);
+    return null;
+  }
+}
