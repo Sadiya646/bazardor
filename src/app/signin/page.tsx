@@ -12,7 +12,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+ const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error('দয়া করে সব ফিল্ড পূরণ করুন');
@@ -32,9 +32,14 @@ export default function SignInPage() {
         return;
       }
 
-      toast.success('সফলভাবে লগইন হয়েছে!');
-      router.push('/');
-      router.refresh();
+      toast.success('সফলভাবে লগইন হয়েছে!');
+      
+      // একটু সময় দিয়ে রিডাইরেক্ট করা যাতে টোস্টটি স্পষ্টভাবে দেখা যায়
+      setTimeout(() => {
+        router.push('/');
+        router.refresh();
+      }, 800);
+
     } catch {
       toast.error('একটি অপ্রত্যাশিত সমস্যা হয়েছে।');
       setLoading(false);
@@ -56,14 +61,14 @@ export default function SignInPage() {
 
   const handleGithubSignIn = async () => {
     try {
-      toast.loading('জিথাব লগইন প্রক্রিয়াকরণ হচ্ছে...');
+      toast.loading('লগইন প্রক্রিয়াকরণ হচ্ছে...');
       await signIn.social({
         provider: 'github',
         callbackURL: '/',
       });
     } catch {
       toast.dismiss();
-      toast.error('জিথাব লগইন ব্যর্থ হয়েছে।');
+      toast.error('লগইন ব্যর্থ হয়েছে।');
     }
   };
 

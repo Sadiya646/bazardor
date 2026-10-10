@@ -9,6 +9,10 @@ interface ProductCardProps {
 }
 
 type ProductWithApiFields = Product & {
+  image?: string;
+categoryIcon?: string;
+emoji?: string;
+icon?: string;
   _id?: string | number;
   today?: string | number;
   nameBn?: string;
@@ -71,6 +75,8 @@ export default function ProductCard({
 
   const icon =
     data.emoji ||
+    data.categoryIcon ||
+    data.image ||
     data.icon ||
     data.image_emoji ||
     categoryIcon ||

@@ -5,6 +5,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signUp } from '@/lib/auth-client';
+import toast, { Toaster } from 'react-hot-toast'; // ১. টোস্ট ইমপোর্ট করা হলো
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -36,7 +37,14 @@ export default function SignUpPage() {
         return;
       }
 
-      router.push('/');
+      // ২. অ্যাকাউন্ট তৈরি সফল হলে টোস্ট মেসেজ দেখাবে
+      toast.success('রেজিস্ট্রেশন সফল হয়েছে! স্বাগতম!');
+
+      // একটু দেরীতে রিডাইরেক্ট হবে যাতে টোস্ট মেসেজটি দেখা যায়
+      setTimeout(() => {
+        router.push('/');
+      }, 1000);
+
     } catch (err) {
       setError('একটি অপ্রত্যাশিত সমস্যা হয়েছে।');
       setLoading(false);
@@ -45,6 +53,9 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50/30 to-white px-4 py-12">
+      {/* ৩. টোস্ট কম্পোনেন্ট এখানে রেন্ডার করা হলো */}
+      <Toaster position="top-center" reverseOrder={false} />
+
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-900/10 border border-emerald-100 p-8 sm:p-10">
         
         {/* Top Icon & Heading */}

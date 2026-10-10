@@ -15,7 +15,7 @@ export default function PriceTicker({ items }: PriceTickerProps) {
   if (items.length === 0) return null;
 
   return (
-    <div className="overflow-hidden border-y border-emerald-700 bg-emerald-800 py-2 text-sm text-white">
+    <div className="overflow-hidden border-y border-emerald-700 bg-emerald-800 py-5  text-sm text-white shadow-inner">
       <div className="ticker-track flex w-max">
         {[0, 1].map((copy) => (
           <div
@@ -30,7 +30,7 @@ export default function PriceTicker({ items }: PriceTickerProps) {
               >
                 <span>{item.emoji}</span>
 
-                <span className="font-medium">
+                <span className="font-medium text-emerald-100">
                   {item.name}
                 </span>
 
