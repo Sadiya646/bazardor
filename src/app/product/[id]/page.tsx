@@ -3,7 +3,15 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
-import { ChangeObject, MarketPrice } from '@/types';
+import { ChangeObject, BazarPrice } from '@/types';
+
+// মার্কেট প্রাইস টাইপ ডিফাইন করা (যদি api থেকে markets ডেটা আসে)
+interface MarketDetail {
+  market: string;
+  division?: string;
+  min: string | number;
+  max: string | number;
+}
 
 interface ProductPageProps {
   params: Promise<{
@@ -103,23 +111,23 @@ export default async function ProductDetailsPage({ params }: ProductPageProps) {
             <span>🏪</span> বিভিন্ন বাজারের খুচরা ও পাইকারি দাম
           </h2>
 
-          {product.markets && product.markets.length > 0 ? (
+          {product.markets && (product.markets as MarketDetail[]).length > 0 ? (
             <div className="divide-y divide-gray-100">
-              {product.markets.map((m: MarketPrice, index: number) => (
+              {(product.markets as MarketDetail[]).map((m, index: number) => (
                 <div key={index} className="py-3 flex items-center justify-between">
                   <div>
                     <span className="font-medium text-gray-700">{m.market}</span>
-                    <span className="text-xs text-gray-400 ml-2">({m.division})</span>
+                    {m.division && <span className="text-xs text-gray-400 ml-2">({m.division})</span>}
                   </div>
                   <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg">
-                    ৳ {m.min} - ৳ {m.max}
+                    ৳ {m.min} - {m.max}
                   </span>
                 </div>
               ))}
             </div>
           ) : product.bazarPrices && product.bazarPrices.length > 0 ? (
             <div className="divide-y divide-gray-100">
-              {product.bazarPrices.map((bp, index: number) => (
+              {product.bazarPrices.map((bp: BazarPrice, index: number) => (
                 <div key={index} className="py-3 flex items-center justify-between">
                   <span className="font-medium text-gray-700">{bp.bazarName}</span>
                   <span className="font-bold text-emerald-800 bg-emerald-50 px-3 py-1 rounded-lg">

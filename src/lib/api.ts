@@ -3,6 +3,9 @@ import { Product, Category } from '@/types';
 
 const BASE_URL = 'https://openapi.programming-hero.com/api/bazardor';
 
+// https://openapi.programming-hero.com/api/bazardor/products
+// https://openapi.programming-hero.com/api/bazardor
+
 export async function fetchCategories(): Promise<Category[]> {
   try {
     const res = await fetch(`${BASE_URL}/categories`, { cache: 'no-store' });

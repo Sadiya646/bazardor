@@ -73,7 +73,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-[85vh] flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50/30 to-white px-4 py-12">
+    <div className="min-h-[85vh] flex items-center justify-center bg-linear-to-br from-emerald-50 via-teal-50/30 to-white px-4 py-12">
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-900/10 border border-emerald-100 p-8 sm:p-10">
         
         <div className="text-center mb-8">
