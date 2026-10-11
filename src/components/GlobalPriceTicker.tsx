@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -25,18 +26,22 @@ function getChangeInfo(change: Product['change']) {
     const symbol =
       type === 'up' ? '▲' : type === 'down' ? '▼' : '—';
 
-    return { text: `${symbol} ${change.pct}%`, type };
+    return {
+      text: `${symbol} ${Math.abs(Number(change.pct)).toLocaleString('bn-BD')}%`,
+      type,
+    };
   }
 
   const text = String(change ?? '—');
 
-  const type: ChangeType = text.includes('▲')
-    ? 'up'
-    : text.includes('▼')
-      ? 'down'
-      : 'flat';
-
-  return { text, type };
+  return {
+    text,
+    type: text.includes('▲')
+      ? 'up'
+      : text.includes('▼')
+        ? 'down'
+        : 'flat',
+  } as const;
 }
 
 export default function GlobalPriceTicker() {
@@ -55,21 +60,30 @@ export default function GlobalPriceTicker() {
           const info = getChangeInfo(product.change);
 
           return {
-            emoji: product.emoji || product.icon || '🛒',
-            name: product.nameBn ?? product.name,
+            emoji:
+              product.image ||
+              product.categoryIcon ||
+              product.emoji ||
+              product.icon ||
+              '🛒',
+
+            name: product.nameBn ?? product.name ?? 'পণ্য',
+
             price:
+              product.today ??
               product.currentPrice ??
               product.current_price ??
               product.price ??
               product.rate ??
               '—',
+
             change: info.text,
             changeType: info.type,
           };
         });
 
         setItems(tickerItems);
-      } catch (error: unknown) {
+      } catch (error) {
         console.error('Price ticker load failed:', error);
       }
     }

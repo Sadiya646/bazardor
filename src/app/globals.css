@@ -3,7 +3,9 @@
 
 
 .ticker-track {
-  animation: ticker-scroll 50s linear infinite;
+  width: max-content;
+  animation: ticker-scroll 35s linear infinite;
+  will-change: transform;
 }
 
 .ticker-track:hover {
@@ -17,11 +19,5 @@
 
   to {
     transform: translateX(-50%);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .ticker-track {
-    animation: none;
   }
 }

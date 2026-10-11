@@ -22,6 +22,8 @@ export interface ChangeObject {
 export type ChangeType = "up" | "down" | "flat";
 
 export interface Product {
+  today: string | number | undefined;
+  image: string | undefined;
   id: string | number;
   _id?: string | number;
   name: string;
