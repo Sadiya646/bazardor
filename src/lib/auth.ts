@@ -1,4 +1,3 @@
-
 import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
@@ -14,11 +13,14 @@ const db = client.db();
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
-
   secret: process.env.BETTER_AUTH_SECRET,
+
+  // লোকালহস্টে কুকি সিকিউরিটি ও রিডাইরেক্ট স্মুথ করার জন্য এটি জরুরি
+  trustedOrigins: ["http://localhost:3000"],
 
   emailAndPassword: {
     enabled: true,
+    autoSignIn: true, // লগইন বা সাইনআপ করার পর অটো সেশন জেনারেট করবে
   },
 
   socialProviders: {

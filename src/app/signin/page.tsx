@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from '@/lib/auth-client';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -12,7 +12,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
- const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
       toast.error('দয়া করে সব ফিল্ড পূরণ করুন');
@@ -34,7 +34,6 @@ export default function SignInPage() {
 
       toast.success('সফলভাবে লগইন হয়েছে!');
       
-      // একটু সময় দিয়ে রিডাইরেক্ট করা যাতে টোস্টটি স্পষ্টভাবে দেখা যায়
       setTimeout(() => {
         router.push('/');
         router.refresh();
@@ -48,32 +47,35 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      toast.loading('গুগল লগইন প্রক্রিয়াকরণ হচ্ছে...');
+      toast.loading('গুগল লগইন প্রক্রিয়াকরণ হচ্ছে...');
       await signIn.social({
         provider: 'google',
         callbackURL: '/',
+        errorCallbackURL: '/signin',
       });
     } catch {
       toast.dismiss();
-      toast.error('গুগল লগইন ব্যর্থ হয়েছে।');
+      toast.error('গুগল লগইন ব্যর্থ হয়েছে।');
     }
   };
 
   const handleGithubSignIn = async () => {
     try {
-      toast.loading('লগইন প্রক্রিয়াকরণ হচ্ছে...');
+      toast.loading('লগইন প্রক্রিয়াকরণ হচ্ছে...');
       await signIn.social({
         provider: 'github',
         callbackURL: '/',
+        errorCallbackURL: '/signin',
       });
     } catch {
       toast.dismiss();
-      toast.error('লগইন ব্যর্থ হয়েছে।');
+      toast.error('লগইন ব্যর্থ হয়েছে।');
     }
   };
 
   return (
     <div className="min-h-[85vh] flex items-center justify-center bg-linear-to-br from-emerald-50 via-teal-50/30 to-white px-4 py-12">
+      <Toaster position="top-center" />
       <div className="w-full max-w-md bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl shadow-emerald-900/10 border border-emerald-100 p-8 sm:p-10">
         
         <div className="text-center mb-8">
